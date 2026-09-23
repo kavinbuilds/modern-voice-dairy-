@@ -1030,5 +1030,3 @@ with tab_add:
                         st.warning(
                             "No speech was detected."
                         )
-
-                except
