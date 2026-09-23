@@ -1,16 +1,15 @@
 import os
 import json
 import tempfile
-import textwrap
 from datetime import datetime
-
+import textwrap
 import streamlit as st
 import whisper
 from gtts import gTTS
 
 
 # ============================================================
-# PAGE CONFIGURATION
+# PAGE CONFIG
 # ============================================================
 
 st.set_page_config(
@@ -26,61 +25,21 @@ st.set_page_config(
 # ============================================================
 
 LANGUAGES = {
-    "English": {
-        "whisper": "en",
-        "tts": "en",
-        "flag": "🇬🇧"
-    },
-    "Hindi": {
-        "whisper": "hi",
-        "tts": "hi",
-        "flag": "🇮🇳"
-    },
-    "Marathi": {
-        "whisper": "mr",
-        "tts": "mr",
-        "flag": "🇮🇳"
-    },
-    "Tamil": {
-        "whisper": "ta",
-        "tts": "ta",
-        "flag": "🇮🇳"
-    },
-    "Telugu": {
-        "whisper": "te",
-        "tts": "te",
-        "flag": "🇮🇳"
-    },
-    "Bengali": {
-        "whisper": "bn",
-        "tts": "bn",
-        "flag": "🇮🇳"
-    },
-    "Gujarati": {
-        "whisper": "gu",
-        "tts": "gu",
-        "flag": "🇮🇳"
-    },
-    "Kannada": {
-        "whisper": "kn",
-        "tts": "kn",
-        "flag": "🇮🇳"
-    },
-    "Malayalam": {
-        "whisper": "ml",
-        "tts": "ml",
-        "flag": "🇮🇳"
-    },
-    "Punjabi": {
-        "whisper": "pa",
-        "tts": "pa",
-        "flag": "🇮🇳"
-    }
+    "English": {"whisper": "en", "tts": "en", "flag": "🇬🇧"},
+    "Hindi": {"whisper": "hi", "tts": "hi", "flag": "🇮🇳"},
+    "Marathi": {"whisper": "mr", "tts": "mr", "flag": "🇮🇳"},
+    "Tamil": {"whisper": "ta", "tts": "ta", "flag": "🇮🇳"},
+    "Telugu": {"whisper": "te", "tts": "te", "flag": "🇮🇳"},
+    "Bengali": {"whisper": "bn", "tts": "bn", "flag": "🇮🇳"},
+    "Gujarati": {"whisper": "gu", "tts": "gu", "flag": "🇮🇳"},
+    "Kannada": {"whisper": "kn", "tts": "kn", "flag": "🇮🇳"},
+    "Malayalam": {"whisper": "ml", "tts": "ml", "flag": "🇮🇳"},
+    "Punjabi": {"whisper": "pa", "tts": "pa", "flag": "🇮🇳"},
 }
 
 
 # ============================================================
-# APPLICATION SETTINGS
+# FOLDERS
 # ============================================================
 
 DIARY_FOLDER = "diary_notes"
@@ -89,639 +48,368 @@ os.makedirs(DIARY_FOLDER, exist_ok=True)
 
 
 # ============================================================
-# HELPER FOR HTML
-#
-# This fixes the problem where Streamlit was displaying
-# <div> and </div> as visible text.
-# ============================================================
-
-def render_html(html):
-    st.markdown(
-        textwrap.dedent(html).strip(),
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# PREMIUM MOBILE-FIRST CSS
+# MODERN UI / CSS
 # ============================================================
 
 st.markdown(
     """
-<style>
+    <style>
 
-/* ============================================================
-   GLOBAL APP
-   ============================================================ */
+    /* =====================================================
+       GLOBAL
+       ===================================================== */
 
-.stApp {
-    background:
-        radial-gradient(
-            circle at 10% 0%,
-            rgba(124, 58, 237, 0.20),
-            transparent 28%
-        ),
-        radial-gradient(
-            circle at 100% 15%,
-            rgba(59, 130, 246, 0.16),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 50% 100%,
-            rgba(6, 182, 212, 0.08),
-            transparent 35%
-        ),
-        #070a14;
+    .stApp {
+        background:
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(124, 58, 237, 0.22),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 90% 20%,
+                rgba(37, 99, 235, 0.18),
+                transparent 30%
+            ),
+            radial-gradient(
+                circle at 50% 100%,
+                rgba(14, 165, 233, 0.12),
+                transparent 35%
+            ),
+            #080b18;
+        color: #f8fafc;
+    }
 
-    color: #f8fafc;
-}
+    /* Hide Streamlit default decorations */
 
+    #MainMenu {
+        visibility: hidden;
+    }
 
-/* ============================================================
-   REMOVE DEFAULT STREAMLIT ELEMENTS
-   ============================================================ */
+    footer {
+        visibility: hidden;
+    }
 
-#MainMenu {
-    visibility: hidden;
-}
+    header {
+        background: transparent !important;
+    }
 
-footer {
-    visibility: hidden;
-}
+    /* Main content */
 
-header {
-    background: transparent !important;
-}
-
-
-/* ============================================================
-   MAIN CONTAINER
-   ============================================================ */
-
-.block-container {
-    max-width: 760px !important;
-
-    padding-top: 1.2rem !important;
-    padding-bottom: 2rem !important;
-
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-}
+    .block-container {
+        max-width: 850px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
 
 
-/* ============================================================
-   BRAND
-   ============================================================ */
+    /* =====================================================
+       HEADER
+       ===================================================== */
 
-.brand {
-    text-align: center;
+    .brand {
+        text-align: center;
+        margin-bottom: 8px;
+    }
 
-    padding-top: 10px;
-    padding-bottom: 12px;
-}
+    .brand-small {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #a78bfa;
+        margin-bottom: 8px;
+    }
 
-.brand-small {
-    color: #a78bfa;
+    .brand-title {
+        font-size: 48px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -2px;
 
-    font-size: 11px;
-    font-weight: 800;
-
-    letter-spacing: 3px;
-
-    text-transform: uppercase;
-
-    margin-bottom: 8px;
-}
-
-.brand-title {
-    font-size: clamp(38px, 11vw, 58px);
-
-    line-height: 1;
-
-    font-weight: 900;
-
-    letter-spacing: -2px;
-
-    background:
-        linear-gradient(
-            100deg,
-            #d8b4fe,
-            #8b5cf6,
-            #60a5fa,
-            #22d3ee
+        background: linear-gradient(
+            90deg,
+            #c084fc,
+            #818cf8,
+            #38bdf8
         );
 
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
 
-    background-clip: text;
+        margin: 0;
+    }
 
-    margin: 0;
-}
+    .brand-subtitle {
+        color: #94a3b8;
+        font-size: 15px;
+        margin-top: 12px;
+    }
 
-.brand-subtitle {
-    margin-top: 12px;
 
-    color: #94a3b8;
+    /* =====================================================
+       GLASS CARD
+       ===================================================== */
 
-    font-size: 14px;
+    .glass-card {
+        background: rgba(15, 23, 42, 0.72);
 
-    line-height: 1.5;
-}
+        border: 1px solid rgba(148, 163, 184, 0.15);
 
+        border-radius: 24px;
 
-/* ============================================================
-   FEATURE PILLS
-   ============================================================ */
+        padding: 28px;
 
-.feature-row {
-    display: flex;
+        box-shadow:
+            0 20px 50px rgba(0, 0, 0, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
-    justify-content: center;
+        backdrop-filter: blur(18px);
 
-    flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
 
-    gap: 7px;
 
-    margin-top: 16px;
-    margin-bottom: 24px;
-}
+    /* =====================================================
+       SECTION TITLES
+       ===================================================== */
 
-.feature {
-    padding: 7px 11px;
+    .section-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #f8fafc;
+        margin-bottom: 5px;
+    }
 
-    border-radius: 999px;
+    .section-description {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
 
-    background: rgba(139, 92, 246, 0.08);
 
-    border:
-        1px solid
-        rgba(139, 92, 246, 0.20);
+    /* =====================================================
+       FEATURE BADGES
+       ===================================================== */
 
-    color: #c4b5fd;
+    .feature-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
 
-    font-size: 11px;
+    .feature {
+        background: rgba(139, 92, 246, 0.10);
+        border: 1px solid rgba(139, 92, 246, 0.20);
+        color: #c4b5fd;
 
-    font-weight: 700;
+        border-radius: 999px;
 
-    white-space: nowrap;
-}
+        padding: 7px 13px;
 
+        font-size: 12px;
+        font-weight: 600;
+    }
 
-/* ============================================================
-   GLASS CARD
-   ============================================================ */
 
-.glass-card {
-    width: 100%;
-    box-sizing: border-box;
+    /* =====================================================
+       TABS
+       ===================================================== */
 
-    background:
-        linear-gradient(
-            145deg,
-            rgba(22, 28, 52, 0.88),
-            rgba(10, 15, 30, 0.82)
-        );
+    button[data-baseweb="tab"] {
+        background: transparent !important;
+        color: #94a3b8 !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+    }
 
-    border:
-        1px solid
-        rgba(148, 163, 184, 0.13);
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #ffffff !important;
+        background: rgba(139, 92, 246, 0.15) !important;
+    }
 
-    border-radius: 22px;
-
-    padding: 20px;
-
-    margin-bottom: 16px;
-
-    box-shadow:
-        0 18px 45px rgba(0, 0, 0, 0.24),
-        inset 0 1px 0 rgba(255,255,255,0.04);
-
-    backdrop-filter: blur(18px);
-}
-
-
-/* ============================================================
-   CARD ICON
-   ============================================================ */
-
-.card-icon {
-    width: 48px;
-    height: 48px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 15px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(139, 92, 246, 0.25),
-            rgba(59, 130, 246, 0.18)
-        );
-
-    border:
-        1px solid
-        rgba(167, 139, 250, 0.20);
-
-    font-size: 22px;
-
-    margin-bottom: 14px;
-}
-
-
-/* ============================================================
-   CARD TITLES
-   ============================================================ */
-
-.section-title {
-    color: #f8fafc;
-
-    font-size: 20px;
-
-    font-weight: 800;
-
-    letter-spacing: -0.3px;
-}
-
-.section-description {
-    color: #94a3b8;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-    margin-top: 6px;
-}
-
-
-/* ============================================================
-   TABS
-   ============================================================ */
-
-div[data-baseweb="tab-list"] {
-    gap: 8px;
-
-    background:
-        rgba(15, 23, 42, 0.65);
-
-    border:
-        1px solid
-        rgba(148, 163, 184, 0.10);
-
-    border-radius: 15px;
-
-    padding: 5px;
-
-    margin-bottom: 18px;
-}
-
-button[data-baseweb="tab"] {
-    border-radius: 11px !important;
-
-    color: #64748b !important;
-
-    font-size: 13px !important;
-
-    font-weight: 700 !important;
-
-    padding: 9px 12px !important;
-}
-
-button[data-baseweb="tab"][aria-selected="true"] {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(124, 58, 237, 0.28),
-            rgba(59, 130, 246, 0.20)
-        ) !important;
-
-    color: #ffffff !important;
-}
-
-div[data-baseweb="tab-highlight"] {
-    background:
-        linear-gradient(
+    [data-baseweb="tab-highlight"] {
+        background: linear-gradient(
             90deg,
             #8b5cf6,
             #3b82f6
         ) !important;
-}
-
-
-/* ============================================================
-   LABELS
-   ============================================================ */
-
-label {
-    color: #cbd5e1 !important;
-
-    font-size: 13px !important;
-
-    font-weight: 600 !important;
-}
-
-
-/* ============================================================
-   SELECTBOX
-   ============================================================ */
-
-div[data-baseweb="select"] > div {
-    background:
-        rgba(15, 23, 42, 0.86) !important;
-
-    border:
-        1px solid
-        rgba(148, 163, 184, 0.16) !important;
-
-    border-radius: 13px !important;
-
-    min-height: 46px !important;
-
-    color: #f8fafc !important;
-}
-
-
-/* ============================================================
-   DATE INPUT
-   ============================================================ */
-
-div[data-testid="stDateInput"] input {
-    background:
-        rgba(15, 23, 42, 0.86) !important;
-
-    border:
-        1px solid
-        rgba(148, 163, 184, 0.16) !important;
-
-    border-radius: 13px !important;
-
-    color: #f8fafc !important;
-}
-
-
-/* ============================================================
-   AUDIO INPUT
-   ============================================================ */
-
-[data-testid="stAudioInput"] {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(30, 41, 70, 0.70),
-            rgba(15, 23, 42, 0.65)
-        );
-
-    border:
-        1px dashed
-        rgba(129, 140, 248, 0.55);
-
-    border-radius: 20px;
-
-    padding: 14px;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-
-/* ============================================================
-   AUDIO PLAYER
-   ============================================================ */
-
-audio {
-    width: 100% !important;
-
-    border-radius: 12px;
-}
-
-
-/* ============================================================
-   BUTTONS
-   ============================================================ */
-
-.stButton > button {
-    min-height: 46px !important;
-
-    border-radius: 13px !important;
-
-    background:
-        rgba(30, 41, 59, 0.85) !important;
-
-    color: #f8fafc !important;
-
-    border:
-        1px solid
-        rgba(148, 163, 184, 0.16) !important;
-
-    font-size: 13px !important;
-
-    font-weight: 750 !important;
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
-}
-
-.stButton > button:hover {
-    transform: translateY(-1px);
-
-    border-color:
-        rgba(129, 140, 248, 0.50) !important;
-
-    box-shadow:
-        0 8px 22px
-        rgba(0,0,0,0.22);
-}
-
-
-/* ============================================================
-   PRIMARY BUTTON
-   ============================================================ */
-
-.stButton > button[kind="primary"] {
-    background:
-        linear-gradient(
-            135deg,
-            #7c3aed,
-            #5b4ce6,
-            #2563eb
-        ) !important;
-
-    border: none !important;
-
-    color: white !important;
-
-    box-shadow:
-        0 8px 25px
-        rgba(99, 72, 220, 0.28);
-}
-
-.stButton > button[kind="primary"]:hover {
-    box-shadow:
-        0 12px 30px
-        rgba(99, 72, 220, 0.40);
-}
-
-
-/* ============================================================
-   TEXT AREA
-   ============================================================ */
-
-textarea {
-    background:
-        rgba(8, 13, 27, 0.82) !important;
-
-    color:
-        #f8fafc !important;
-
-    border:
-        1px solid
-        rgba(148, 163, 184, 0.15) !important;
-
-    border-radius:
-        16px !important;
-
-    font-size:
-        15px !important;
-
-    line-height:
-        1.75 !important;
-
-    padding:
-        14px !important;
-}
-
-
-/* ============================================================
-   INFO / SUCCESS / WARNING
-   ============================================================ */
-
-[data-testid="stAlert"] {
-    border-radius: 14px !important;
-
-    background:
-        rgba(15, 23, 42, 0.75) !important;
-
-    border:
-        1px solid
-        rgba(148, 163, 184, 0.12) !important;
-}
-
-
-/* ============================================================
-   CAPTION
-   ============================================================ */
-
-[data-testid="stCaptionContainer"] {
-    color: #64748b !important;
-}
-
-
-/* ============================================================
-   DIVIDER
-   ============================================================ */
-
-hr {
-    border-color:
-        rgba(148, 163, 184, 0.08) !important;
-}
-
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
-
-.footer {
-    text-align: center;
-
-    color: #475569;
-
-    font-size: 11px;
-
-    margin-top: 28px;
-
-    padding-bottom: 10px;
-}
-
-
-/* ============================================================
-   MOBILE OPTIMIZATION
-   ============================================================ */
-
-@media (max-width: 600px) {
-
-    .block-container {
-        padding-top: 0.8rem !important;
-
-        padding-left: 0.75rem !important;
-        padding-right: 0.75rem !important;
     }
 
-    .brand-title {
-        font-size: 40px;
+
+    /* =====================================================
+       SELECT BOX
+       ===================================================== */
+
+    div[data-baseweb="select"] > div {
+        background: rgba(15, 23, 42, 0.85) !important;
+        border: 1px solid rgba(148, 163, 184, 0.20) !important;
+        border-radius: 14px !important;
+        color: white !important;
     }
 
-    .brand-subtitle {
-        font-size: 13px;
+
+    /* =====================================================
+       AUDIO INPUT
+       ===================================================== */
+
+    [data-testid="stAudioInput"] {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px dashed rgba(129, 140, 248, 0.55);
+        border-radius: 20px;
+        padding: 20px;
     }
 
-    .feature-row {
-        gap: 5px;
-    }
 
-    .feature {
-        font-size: 10px;
-        padding: 6px 9px;
-    }
-
-    .glass-card {
-        padding: 17px;
-
-        border-radius: 19px;
-    }
-
-    .section-title {
-        font-size: 18px;
-    }
-
-    .section-description {
-        font-size: 12px;
-    }
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
 
     .stButton > button {
-        min-height: 48px !important;
+        border-radius: 14px !important;
+
+        border: 1px solid rgba(148, 163, 184, 0.18) !important;
+
+        background: rgba(30, 41, 59, 0.8) !important;
+
+        color: #f8fafc !important;
+
+        font-weight: 700 !important;
+
+        min-height: 48px;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
     }
 
-}
+    .stButton > button:hover {
+        transform: translateY(-2px);
 
+        box-shadow:
+            0 10px 25px rgba(0, 0, 0, 0.25);
 
-/* ============================================================
-   EXTRA SMALL PHONES
-   ============================================================ */
-
-@media (max-width: 380px) {
-
-    .brand-title {
-        font-size: 35px;
+        border-color: rgba(129, 140, 248, 0.6) !important;
     }
 
-    .feature {
-        font-size: 9px;
+    /* Primary buttons */
+
+    .stButton > button[kind="primary"] {
+        background:
+            linear-gradient(
+                135deg,
+                #7c3aed,
+                #4f46e5,
+                #2563eb
+            ) !important;
+
+        border: none !important;
+
+        box-shadow:
+            0 8px 25px rgba(79, 70, 229, 0.28);
     }
 
-}
+    .stButton > button[kind="primary"]:hover {
+        box-shadow:
+            0 12px 32px rgba(79, 70, 229, 0.40);
+    }
 
-</style>
-""",
+
+    /* =====================================================
+       TEXT AREA
+       ===================================================== */
+
+    textarea {
+        background: rgba(15, 23, 42, 0.80) !important;
+
+        color: #f8fafc !important;
+
+        border:
+            1px solid rgba(148, 163, 184, 0.18)
+            !important;
+
+        border-radius: 16px !important;
+
+        font-size: 15px !important;
+
+        line-height: 1.7 !important;
+    }
+
+
+    /* =====================================================
+       DATE INPUT
+       ===================================================== */
+
+    input {
+        color: #f8fafc !important;
+    }
+
+
+    /* =====================================================
+       INFO / SUCCESS / WARNING
+       ===================================================== */
+
+    [data-testid="stAlert"] {
+        border-radius: 14px !important;
+        border: 1px solid rgba(148, 163, 184, 0.15) !important;
+        background: rgba(15, 23, 42, 0.70) !important;
+    }
+
+
+    /* =====================================================
+       DIVIDER
+       ===================================================== */
+
+    hr {
+        border-color: rgba(148, 163, 184, 0.10) !important;
+    }
+
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    .footer {
+        text-align: center;
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 35px;
+    }
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @media (max-width: 600px) {
+
+        .block-container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .brand-title {
+            font-size: 36px;
+        }
+
+        .glass-card {
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+    }
+
+    </style>
+    """,
     unsafe_allow_html=True
 )
 
 
 # ============================================================
-# LOAD WHISPER MODEL
+# LOAD WHISPER
 # ============================================================
 
 @st.cache_resource
@@ -806,6 +494,7 @@ def load_diary(date):
             return json.load(file)
 
     except Exception:
+
         return None
 
 
@@ -821,10 +510,10 @@ def delete_file(filename):
 
 
 # ============================================================
-# BRAND HEADER
+# HEADER
 # ============================================================
 
-render_html(
+st.markdown(textwrap.dedent(
     """
     <div class="brand">
 
@@ -841,20 +530,21 @@ render_html(
         </div>
 
     </div>
-    """
+    """),
+    unsafe_allow_html=True
 )
 
 
 # ============================================================
-# FEATURE PILLS
+# FEATURES
 # ============================================================
 
-render_html(
+st.markdown(textwrap.dedent(
     """
     <div class="feature-row">
 
         <div class="feature">
-            🎙️ Voice
+            🎙️ Voice Powered
         </div>
 
         <div class="feature">
@@ -870,7 +560,8 @@ render_html(
         </div>
 
     </div>
-    """
+    """),
+    unsafe_allow_html=True
 )
 
 
@@ -878,7 +569,7 @@ render_html(
 # TABS
 # ============================================================
 
-tab_add, tab_search = st.tabs(
+tab1, tab2 = st.tabs(
     [
         "✦  Add Diary",
         "⌕  Search Diary"
@@ -890,32 +581,25 @@ tab_add, tab_search = st.tabs(
 # ADD DIARY
 # ============================================================
 
-with tab_add:
+with tab1:
 
-    render_html(
+    st.markdown(textwrap.dedent(
         """
         <div class="glass-card">
 
-            <div class="card-icon">
-                🎙️
-            </div>
-
             <div class="section-title">
-                Capture your moment
+                🎙️ Capture your moment
             </div>
 
             <div class="section-description">
-                Speak naturally and let AI transform
-                your voice into a diary entry.
+                Speak naturally and let AI turn your voice
+                into a beautiful diary entry.
             </div>
 
         </div>
-        """
+        """),
+        unsafe_allow_html=True
     )
-
-    # --------------------------------------------------------
-    # LANGUAGE
-    # --------------------------------------------------------
 
     language_name = st.selectbox(
         "🌍 Diary language",
@@ -934,15 +618,13 @@ with tab_add:
 
     st.caption(
         f"{LANGUAGES[language_name]['flag']} "
-        f"Recording in {language_name}"
+        f"Recording language: **{language_name}**"
     )
 
-    # --------------------------------------------------------
-    # RECORDING
-    # --------------------------------------------------------
+    st.markdown("<br>", unsafe_allow_html=True)
 
     audio_file = st.audio_input(
-        "🎙️ Tap below to record",
+        "🎙️ Tap to record your diary",
         key=f"audio_input_{st.session_state.audio_key}"
     )
 
@@ -961,16 +643,9 @@ with tab_add:
 
         st.audio(audio_file)
 
-        st.write("")
+        st.markdown("<br>", unsafe_allow_html=True)
 
-        col1, col2 = st.columns(
-            2,
-            gap="small"
-        )
-
-        # ----------------------------------------------------
-        # CLEAR
-        # ----------------------------------------------------
+        col1, col2 = st.columns(2)
 
         with col1:
 
@@ -983,19 +658,14 @@ with tab_add:
                 delete_file(audio_path)
 
                 st.session_state.audio_key += 1
-
                 st.session_state.edit_area = ""
 
                 st.rerun()
 
-        # ----------------------------------------------------
-        # CONVERT
-        # ----------------------------------------------------
-
         with col2:
 
             if st.button(
-                "✨ Convert",
+                "✨ Convert with AI",
                 key="convert",
                 type="primary",
                 width="stretch"
@@ -1004,7 +674,8 @@ with tab_add:
                 try:
 
                     with st.spinner(
-                        "AI is processing your voice..."
+                        f"AI is understanding your "
+                        f"{language_name} voice..."
                     ):
 
                         result = model.transcribe(
@@ -1022,7 +693,7 @@ with tab_add:
                         st.session_state.edit_area = text
 
                         st.success(
-                            "Your diary entry is ready ✨"
+                            "Your diary entry is ready! ✨"
                         )
 
                     else:
@@ -1030,3 +701,185 @@ with tab_add:
                         st.warning(
                             "No speech was detected."
                         )
+
+                except Exception as error:
+
+                    st.error(
+                        "Unable to process the recording."
+                    )
+
+                    st.exception(error)
+
+        # ----------------------------------------------------
+        # EDITOR
+        # ----------------------------------------------------
+
+        if st.session_state.edit_area:
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            st.markdown(
+                """
+                <div class="glass-card">
+
+                    <div class="section-title">
+                        📝 Your diary
+                    </div>
+
+                    <div class="section-description">
+                        Review and edit your entry before saving.
+                    </div>
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            edited_text = st.text_area(
+                "Diary entry",
+                value=st.session_state.edit_area,
+                height=260,
+                label_visibility="collapsed"
+            )
+
+            st.session_state.edit_area = edited_text
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            if st.button(
+                "💾 Save to My Diary",
+                type="primary",
+                width="stretch"
+            ):
+
+                if edited_text.strip():
+
+                    today = datetime.now()
+
+                    save_diary(
+                        today,
+                        edited_text.strip(),
+                        language_name
+                    )
+
+                    st.success(
+                        "Diary saved successfully 💜"
+                    )
+
+                    st.caption(
+                        f"Saved on "
+                        f"{today.strftime('%d %B %Y')} "
+                        f"• {language_name}"
+                    )
+
+                else:
+
+                    st.warning(
+                        "Your diary entry is empty."
+                    )
+
+
+# ============================================================
+# SEARCH DIARY
+# ============================================================
+
+with tab2:
+
+    st.markdown(
+        """
+        <div class="glass-card">
+
+            <div class="section-title">
+                🔎 Revisit a memory
+            </div>
+
+            <div class="section-description">
+                Select a date to rediscover what you recorded.
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    search_date = st.date_input(
+        "Choose a date",
+        value=datetime.now().date(),
+        key="search_date"
+    )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    if st.button(
+        "🔍 Find Diary",
+        type="primary",
+        width="stretch"
+    ):
+
+        diary_data = load_diary(
+            search_date
+        )
+
+        if diary_data:
+
+            st.session_state.diary_note = diary_data.get(
+                "text",
+                ""
+            )
+
+            st.session_state.selected_language = diary_data.get(
+                "language",
+                "English"
+            )
+
+            st.success(
+                "Memory found ✨"
+            )
+
+        else:
+
+            st.session_state.diary_note = ""
+
+            st.warning(
+                "No diary entry found for this date."
+            )
+
+
+    # --------------------------------------------------------
+    # DISPLAY DIARY
+    # --------------------------------------------------------
+
+    if st.session_state.diary_note:
+
+        diary_data = load_diary(
+            search_date
+        )
+
+        saved_language = "English"
+
+        if diary_data:
+
+            saved_language = diary_data.get(
+                "language",
+                "English"
+            )
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        st.markdown(
+            f"""
+            <div class="glass-card">
+
+                <div class="section-title">
+                    📖 {search_date.strftime('%d %B %Y')}
+                </div>
+
+                <div class="section-description">
+                    {LANGUAGES[saved_language]['flag']}
+                    Recorded in {saved_language}
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
