@@ -339,7 +339,7 @@ with tab1:
                     f"Converting your {language_name} voice to text..."
                 ):
 
-                    result=model.transcribe(
+                            result=model.transcribe(
     audio_path,
     language=whisper_language,
     task="transcribe",
@@ -353,7 +353,7 @@ with tab1:
     )
 )
 
-transcribed_text = result["text"].strip()
+ transcribed_text = result["text"].strip()
 
                 transcribed_text = result["text"].strip()
 
