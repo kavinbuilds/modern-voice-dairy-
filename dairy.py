@@ -2,7 +2,7 @@ import os
 import json
 import tempfile
 from datetime import datetime
-import textwrap
+
 import streamlit as st
 import whisper
 from gtts import gTTS
@@ -513,7 +513,7 @@ def delete_file(filename):
 # HEADER
 # ============================================================
 
-st.markdown(textwrap.dedent(
+st.markdown(
     """
     <div class="brand">
 
@@ -530,7 +530,7 @@ st.markdown(textwrap.dedent(
         </div>
 
     </div>
-    """),
+    """,
     unsafe_allow_html=True
 )
 
@@ -539,7 +539,7 @@ st.markdown(textwrap.dedent(
 # FEATURES
 # ============================================================
 
-st.markdown(textwrap.dedent(
+st.markdown(
     """
     <div class="feature-row">
 
@@ -560,7 +560,7 @@ st.markdown(textwrap.dedent(
         </div>
 
     </div>
-    """),
+    """,
     unsafe_allow_html=True
 )
 
@@ -583,7 +583,7 @@ tab1, tab2 = st.tabs(
 
 with tab1:
 
-    st.markdown(textwrap.dedent(
+    st.markdown(
         """
         <div class="glass-card">
 
@@ -597,7 +597,7 @@ with tab1:
             </div>
 
         </div>
-        """),
+        """,
         unsafe_allow_html=True
     )
 
@@ -883,3 +883,123 @@ with tab2:
             """,
             unsafe_allow_html=True
         )
+   edited_diary = st.text_area(
+            "Diary",
+            value=st.session_state.diary_note,
+            height=280,
+            label_visibility="collapsed"
+        )
+
+        st.session_state.diary_note = edited_diary
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        col1, col2 = st.columns(2)
+
+        # ----------------------------------------------------
+        # SAVE CHANGES
+        # ----------------------------------------------------
+
+        with col1:
+
+            if st.button(
+                "💾 Save Changes",
+                width="stretch"
+            ):
+
+                save_diary(
+                    search_date,
+                    edited_diary.strip(),
+                    saved_language
+                )
+
+                st.success(
+                    "Diary updated!"
+                )
+
+        # ----------------------------------------------------
+        # READ DIARY
+        # ----------------------------------------------------
+
+        with col2:
+
+            if st.button(
+                "🔊 Read Aloud",
+                type="primary",
+                width="stretch"
+            ):
+
+                if not edited_diary.strip():
+
+                    st.warning(
+                        "There is nothing to read."
+                    )
+
+                else:
+
+                    try:
+
+                        tts_language = LANGUAGES.get(
+                            saved_language,
+                            LANGUAGES["English"]
+                        )["tts"]
+
+                        with st.spinner(
+                            "Creating your audio memory..."
+                        ):
+
+                            tts = gTTS(
+                                text=edited_diary,
+                                lang=tts_language,
+                                slow=False
+                            )
+
+                            with tempfile.NamedTemporaryFile(
+                                delete=False,
+                                suffix=".mp3"
+                            ) as temp_file:
+
+                                audio_path = temp_file.name
+
+                            tts.save(
+                                audio_path
+                            )
+
+                        with open(
+                            audio_path,
+                            "rb"
+                        ) as audio:
+
+                            audio_bytes = audio.read()
+
+                        st.audio(
+                            audio_bytes,
+                            format="audio/mp3"
+                        )
+
+                        delete_file(
+                            audio_path
+                        )
+
+                    except Exception as error:
+
+                        st.error(
+                            "Unable to create the voice playback."
+                        )
+
+                        st.exception(error)
+
+
+# ============================================================
+# FOOTER
+# ============================================================
+
+st.markdown(
+    """
+    <div class="footer">
+        ✦ VocaDiary AI &nbsp;•&nbsp;
+        Your memories, beautifully preserved.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
