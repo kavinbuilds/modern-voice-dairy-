@@ -339,11 +339,21 @@ with tab1:
                     f"Converting your {language_name} voice to text..."
                 ):
 
-                    result = model.transcribe(
-                        audio_path,
-                        language=whisper_language,
-                        fp16=False
-                    )
+                    result=model.transcribe(
+    audio_path,
+    language=whisper_language,
+    task="transcribe",
+    fp16=False,
+    temperature=0,
+    condition_on_previous_text=False,
+    initial_prompt=(
+        f"Personal diary entry in {language_name}. "
+        "Transcribe exactly what the speaker says. "
+        "Do not translate."
+    )
+)
+
+transcribed_text = result["text"].strip()
 
                 transcribed_text = result["text"].strip()
 
